@@ -2,8 +2,7 @@ package harborcli
 
 import (
 	"fmt"
-
-	"github.com/goharbor/harbor/src/common/models"
+	"time"
 )
 
 const (
@@ -14,7 +13,30 @@ type ProjectAPI struct {
 	client *HarborClient
 }
 
-func (p *ProjectAPI) Create(project *models.ProjectRequest) error {
+// ProjectRequest holds informations that need for creating project API
+type ProjectRequest struct {
+	Name     string            `json:"project_name"`
+	Public   *int              `json:"public"` // deprecated, reserved for project creation in replication
+	Metadata map[string]string `json:"metadata"`
+}
+
+// Project holds the details of a project.
+type Project struct {
+	ProjectID    int64             `orm:"pk;auto;column(project_id)" json:"project_id"`
+	OwnerID      int               `orm:"column(owner_id)" json:"owner_id"`
+	Name         string            `orm:"column(name)" json:"name"`
+	CreationTime time.Time         `orm:"column(creation_time);auto_now_add" json:"creation_time"`
+	UpdateTime   time.Time         `orm:"column(update_time);auto_now" json:"update_time"`
+	Deleted      bool              `orm:"column(deleted)" json:"deleted"`
+	OwnerName    string            `orm:"-" json:"owner_name"`
+	Togglable    bool              `orm:"-" json:"togglable"`
+	Role         int               `orm:"-" json:"current_user_role_id"`
+	RepoCount    int64             `orm:"-" json:"repo_count"`
+	ChartCount   uint64            `orm:"-" json:"chart_count"`
+	Metadata     map[string]string `orm:"-" json:"metadata"`
+}
+
+func (p *ProjectAPI) Create(project *ProjectRequest) error {
 	err := p.client.authPing()
 	if err != nil {
 		return err
@@ -46,7 +68,7 @@ func (p *ProjectAPI) Check(name string) error {
 }
 
 // Return specific project detail infomation
-func (p *ProjectAPI) Get(id int64) (*models.Project, error) {
+func (p *ProjectAPI) Get(id int64) (*Project, error) {
 	err := p.client.authPing()
 	if err != nil {
 		return nil, err
@@ -57,14 +79,14 @@ func (p *ProjectAPI) Get(id int64) (*models.Project, error) {
 		return nil, err
 	}
 
-	project := &models.Project{}
+	project := &Project{}
 	_, err = p.client.do(req, project)
 
 	return project, err
 }
 
 // Update project by id
-func (p *ProjectAPI) Update(id int64, project *models.ProjectRequest) error {
+func (p *ProjectAPI) Update(id int64, project *ProjectRequest) error {
 	err := p.client.authPing()
 	if err != nil {
 		return err
@@ -97,7 +119,7 @@ func (p *ProjectAPI) Delete(id int64) error {
 }
 
 // List projects
-func (p *ProjectAPI) List(name string) ([]*models.Project, error) {
+func (p *ProjectAPI) List(name string) ([]*Project, error) {
 	err := p.client.authPing()
 	if err != nil {
 		return nil, err
@@ -108,7 +130,7 @@ func (p *ProjectAPI) List(name string) ([]*models.Project, error) {
 		return nil, err
 	}
 
-	var projects []*models.Project
+	var projects []*Project
 	_, err = p.client.do(req, &projects)
 
 	return projects, err

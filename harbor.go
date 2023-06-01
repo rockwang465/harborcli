@@ -38,7 +38,7 @@ type HarborClient struct {
 	Client  *http.Client
 
 	Project    *ProjectAPI
-	Search     *SearchAPI
+	//Search     *SearchAPI
 	Repository *RepositoryAPI
 }
 
@@ -60,9 +60,9 @@ func NewHarborClient(harborURL string, auth LoginForm) (*HarborClient, error) {
 	client.Project = &ProjectAPI{
 		client: client,
 	}
-	client.Search = &SearchAPI{
-		client: client,
-	}
+	//client.Search = &SearchAPI{
+	//	client: client,
+	//}
 	client.Repository = &RepositoryAPI{
 		client: client,
 	}
