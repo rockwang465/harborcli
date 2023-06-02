@@ -13,7 +13,7 @@ const (
 	RepositoryAPIPath = "api/repositories"
 )
 
-type repoResp struct {
+type RepoResp struct {
 	ID           int64     `json:"id"`
 	Name         string    `json:"name"`
 	ProjectID    int64     `json:"project_id"`
@@ -25,7 +25,7 @@ type repoResp struct {
 	UpdateTime   time.Time `json:"update_time"`
 }
 
-type tagResp struct {
+type TagResp struct {
 	Name    string
 	Size    int64
 	Digest  string
@@ -33,8 +33,8 @@ type tagResp struct {
 	Created time.Time
 }
 
-// Get repositories accompany with relevant project and repo name
-func (r *RepositoryAPI) List(projectID int64) ([]*repoResp, error) {
+// List : Get repositories accompany with relevant project and repo name
+func (r *RepositoryAPI) List(projectID int64) ([]*RepoResp, error) {
 	err := r.client.authPing()
 	if err != nil {
 		return nil, err
@@ -45,13 +45,13 @@ func (r *RepositoryAPI) List(projectID int64) ([]*repoResp, error) {
 		return nil, err
 	}
 
-	var repos []*repoResp
+	var repos []*RepoResp
 	_, err = r.client.do(req, &repos)
 
 	return repos, err
 }
 
-// Delete a repository
+// Delete : Delete a repository
 func (r *RepositoryAPI) Delete(name string) error {
 	err := r.client.authPing()
 	if err != nil {
@@ -68,7 +68,7 @@ func (r *RepositoryAPI) Delete(name string) error {
 	return err
 }
 
-// Delete a tag in a repository
+// DeleteTag : Delete a tag in a repository
 func (r *RepositoryAPI) DeleteTag(repoName, tagName string) error {
 	err := r.client.authPing()
 	if err != nil {
@@ -85,8 +85,8 @@ func (r *RepositoryAPI) DeleteTag(repoName, tagName string) error {
 	return err
 }
 
-// Get tags of the repository
-func (r *RepositoryAPI) GetTags(name string) ([]*tagResp, error) {
+// GetTags : Get tags of the repository
+func (r *RepositoryAPI) GetTags(name string) ([]*TagResp, error) {
 	err := r.client.authPing()
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func (r *RepositoryAPI) GetTags(name string) ([]*tagResp, error) {
 		return nil, err
 	}
 
-	var tags []*tagResp
+	var tags []*TagResp
 	_, err = r.client.do(req, &tags)
 
 	return tags, err
